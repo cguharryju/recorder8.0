@@ -28,6 +28,7 @@ rlt = ""
 #ctx['th'] = 0
 word = ""
 ctx['word'] = "一"
+theUserName = ""
 
 def main(request):
     return render(request, 'main.html', {})
@@ -78,9 +79,23 @@ def upload(request):
 def name_post(request):
     if request.POST:
         ctx['rlt'] = request.POST['q']
+
         if(ctx['rlt'] == ""):
             ctx['rlt'] = "user" + datetime.datetime.now().strftime("%f")[:-3]
+        theUserName=ctx['rlt']
         return render(request, "recorder.html", ctx)
+    else:
+        ctx['rlt'] = ""
+        return render(request, "set_name.html")
+
+def name_post2(request):
+    if request.POST:
+        ctx['rlt'] = request.POST['q']
+
+        if(ctx['rlt'] == ""):
+            ctx['rlt'] = "user" + datetime.datetime.now().strftime("%f")[:-3]
+        theUserName=ctx['rlt']
+        return render(request, "recognizer.html", ctx)
     else:
         ctx['rlt'] = ""
         return render(request, "set_name.html")
@@ -114,7 +129,7 @@ def uploadRecog(request):
     
     customHeader = request.META['HTTP_MYCUSTOMHEADER']
     # nowTime=datetime.datetime.now().strftime("%Y%m%d_%H%M%S") 
-    time = "documents/theRecog.wav"
+    time = "documents/the_" + ctx['rlt'] + "_Recog.wav"
     # obviously handle correct naming of the file and place it somewhere like media/uploads/
     uploadedFile = open(time, "wb")
     # the actual file is in request.body
@@ -128,10 +143,10 @@ def uploadRecog(request):
 
 def  recog(request):
     
-    sound = AudioSegment.from_wav("documents/theRecog.wav")
+    sound = AudioSegment.from_wav("documents/the_" + ctx['rlt'] + "_Recog.wav")
     sound=sound.set_frame_rate(16000)
-    sound.export("documents/theNewRecog.wav", format="wav")
-    result=label_wav(wav='documents/theNewRecog.wav',
+    sound.export("documents/the_" + ctx['rlt'] + "_NewRecog.wav", format="wav")
+    result=label_wav(wav='documents/the_' + ctx['rlt'] + '_NewRecog.wav',
                 graph='my_frozen_graph.pb',
                 labels='conv_labels.txt',
                 input_name='wav_data:0',
